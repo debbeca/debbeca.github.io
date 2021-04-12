@@ -1,51 +1,138 @@
 ---
 layout: post
-title:  "Hibernate Pompier Pyromane ?"
-date:   2021-04-07 16:47:20 +0200
-categories: optimisation java springboot hibernate
+title: Example content
 ---
 
-Après deux années de developpement, nous étions amener à optimiser une application SpringBoot / Hibernate après avoir observé plusieurs problème de performance; des memory leak, des timeout et des lenteurs. Malgré l'urgence de la situation, l'optimisation de cette application n’était pas un sprint, mais un marathon de longue haleine. Nous allons étaler les différentes phases de cette opération, les états d'ame et les approches suivies pour résoudre les problèmes rencontrés.
 
-## Phase I : Panic Room
+<div class="message">
+  Howdy! This is an example blog post that shows several types of HTML content supported in this theme.
+</div>
 
-En fait, quand on vous annonce les premiers crash de l’application en prod, on essaie souvent de prédire la source des problèmes. On saute sur les painkillers. Les quicks wins. Sauf que ça ne dure que pour un instant. Augmenter le timeout de son apache ne fait que noyer la douleur en une overdose d'antalgique. Le problème refera surface au bout de quelques semaines. Une analyse en profondeur s’impose. Pour ce faire, il faut être bien outillé.
+Cum sociis natoque penatibus et magnis <a href="#">dis parturient montes</a>, nascetur ridiculus mus. *Aenean eu leo quam.* Pellentesque ornare sem lacinia quam venenatis vestibulum. Sed posuere consectetur est at lobortis. Cras mattis consectetur purus sit amet fermentum.
 
-## Phase II : On soulève le capot
+> Curabitur blandit tempus porttitor. Nullam quis risus eget urna mollis ornare vel eu leo. Nullam id dolor id nibh ultricies vehicula ut id elit.
 
-Collecter des informations - Analyser - enhance - repeat
-Vous avez besoin de surveiller plusieurs aspects.
-D’abord le comportement de votre garbage collector vous dit long sur votre application. Un dump de la heap memory quand votre application crache est un incontournable. Vous pouvez le faire comme suit
-- ICI chercher comment faire un heap dump
+Etiam porta **sem malesuada magna** mollis euismod. Cras mattis consectetur purus sit amet fermentum. Aenean lacinia bibendum nulla sed consectetur.
 
-Ensuite vous aurez besoin de collecter des statistiques sur Hibernate et la base de données. Les requêtes les plus exécutées, les requêtes qui mettent le plus de temps à être exécuté.
-Pour ce faire vous pouvez soit utiliser des sondes de type “Dynatrace” Ou bien vous essayer d’activer les statistiques Hibernate comme suit :
+## Inline HTML elements
 
-- ICI statistique hibernate activation and example
+HTML defines a long list of available inline tags, a complete list of which can be found on the [Mozilla Developer Network](https://developer.mozilla.org/en-US/docs/Web/HTML/Element).
 
-PS : Il n’est pas recommandé de le laisser la collecte des statistiques hibernate activée en prod car ça risque de ralentir votre application d’avantage
+- **To bold text**, use `<strong>`.
+- *To italicize text*, use `<em>`.
+- Abbreviations, like <abbr title="HyperText Markup Langage">HTML</abbr> should use `<abbr>`, with an optional `title` attribute for the full phrase.
+- Citations, like <cite>&mdash; Mark otto</cite>, should use `<cite>`.
+- <del>Deleted</del> text should use `<del>` and <ins>inserted</ins> text should use `<ins>`.
+- Superscript <sup>text</sup> uses `<sup>` and subscript <sub>text</sub> uses `<sub>`.
 
->Pas d’économies de bouts de chandelles, attaquer de front le plus gros. 
+Most of these elements are styled by browsers with few modifications on our part.
 
-Alléger la mémoire des objets qui prennent le plus d’espace. 
-Optimiser les requêtes les plus longues. 
-Diminuer les requêtes les plus exécutées.
+## Heading
 
+Vivamus sagittis lacus vel augue rutrum faucibus dolor auctor. Duis mollis, est non commodo luctus, nisi erat porttitor ligula, eget lacinia odio sem nec elit. Morbi leo risus, porta ac consectetur ac, vestibulum at eros.
 
+### Code
 
+Cum sociis natoque penatibus et magnis dis `code element` montes, nascetur ridiculus mus.
 
-## Phase III : Implémentations des solutions
+{% highlight js %}
+// Example can be run directly in your JavaScript console
 
-1. Mettre le ```show_sql``` à true dans la phase de dev pour voir les queries générées par hibernate
-2. Utiliser ```@QuickPerf``` sur les tests d’intégration pour détecter les N+1 au plus vite. Ça nécessite un test d'intégration sur la base de données
-3. Indexer les colonnes et attributs utilisés dans vos recherches. Si vous avez un ```findByX```, assurez vous d’avoir, dans la mesure du possible, un index sur le X 
-4. Vérifier convenablement vos equals et hashcode. Si vous utilisez lombok, faites attention à ne pas inclure dans relations @OneToMany dans l'implémentation par défaut car vous allez réveiller la bête à chaque fois votre entité est manipulée dans une collection
-5. Utiliser le ```padded``` pour le ```batch_fetch_style``` avec un size( 8 ou 16) pour que vos N+1 queries soient transformées en un batch de quelques requêtes avec une IN Clause.
-6. Utiliser la navigation ```@EntityGraph``` pour forcer la jointure avec les entités attachées et éviter les N+1. Surtout si vous manipulez un agrégat.
-7. Surveiller votre ```QueryCachePlan```, hibernate cache les requêtes exécutées dans la base de données, si vous avez des requêtes trop sollicitées avec un ```Where X IN``` clauses, vous risquez d’avoir autant de requêtes que de cardinalités possibles dans la in clause. Ça risque d’aller super loin et pour optimiser ceci, peut être penser à réécrire la requête avec une jointure et une subquery.
-8. Opter pour le padding des IN clauses. En effet, si vous n'arrivez pas à réécrire vos requêtes, vous pouvez utiliser le padding qui permet de répéter les valeurs passées en paramètre dans la requête afin de garder la même structure et ne pas dupliquer la rêquete autant de fois qu'on a de nombre de paramètres.
+// Create a function that takes two arguments and returns the sum of those arguments
+var adder = new Function("a", "b", "return a + b");
 
-    - exemple ICI
+// Call the function
+adder(2, 6);
+// > 8
+{% endhighlight %}
 
-9. La performance d’une application commence à la conception de son interface, si vous ne pensez pas la cardinalité et la volumétrie de vos données, vous risquez d’être surpris plus tard quand la page met des plombs pour se charger. Pour la simple et unique raison qu’on n’a pas prévu une pagination, ou un load more.
+Aenean lacinia bibendum nulla sed consectetur. Etiam porta sem malesuada magna mollis euismod. Fusce dapibus, tellus ac cursus commodo, tortor mauris condimentum nibh, ut fermentum massa.
 
+### Gists via GitHub Pages
+
+Vestibulum id ligula porta felis euismod semper. Nullam quis risus eget urna mollis ornare vel eu leo. Donec sed odio dui.
+
+{% gist 5555251 gist.md %}
+
+Aenean eu leo quam. Pellentesque ornare sem lacinia quam venenatis vestibulum. Nullam quis risus eget urna mollis ornare vel eu leo. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Donec sed odio dui. Vestibulum id ligula porta felis euismod semper.
+
+### Lists
+
+Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Aenean lacinia bibendum nulla sed consectetur. Etiam porta sem malesuada magna mollis euismod. Fusce dapibus, tellus ac cursus commodo, tortor mauris condimentum nibh, ut fermentum massa justo sit amet risus.
+
+* Praesent commodo cursus magna, vel scelerisque nisl consectetur et.
+* Donec id elit non mi porta gravida at eget metus.
+* Nulla vitae elit libero, a pharetra augue.
+
+Donec ullamcorper nulla non metus auctor fringilla. Nulla vitae elit libero, a pharetra augue.
+
+1. Vestibulum id ligula porta felis euismod semper.
+2. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus.
+3. Maecenas sed diam eget risus varius blandit sit amet non magna.
+
+Cras mattis consectetur purus sit amet fermentum. Sed posuere consectetur est at lobortis.
+
+<dl>
+  <dt>HyperText Markup Language (HTML)</dt>
+  <dd>The language used to describe and define the content of a Web page</dd>
+
+  <dt>Cascading Style Sheets (CSS)</dt>
+  <dd>Used to describe the appearance of Web content</dd>
+
+  <dt>JavaScript (JS)</dt>
+  <dd>The programming language used to build advanced Web sites and applications</dd>
+</dl>
+
+Integer posuere erat a ante venenatis dapibus posuere velit aliquet. Morbi leo risus, porta ac consectetur ac, vestibulum at eros. Nullam quis risus eget urna mollis ornare vel eu leo.
+
+### Images
+
+Quisque consequat sapien eget quam rhoncus, sit amet laoreet diam tempus. Aliquam aliquam metus erat, a pulvinar turpis suscipit at.
+
+![placeholder](http://placehold.it/800x400 "Large example image")
+![placeholder](http://placehold.it/400x200 "Medium example image")
+![placeholder](http://placehold.it/200x200 "Small example image")
+
+### Tables
+
+Aenean lacinia bibendum nulla sed consectetur. Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+
+<table>
+  <thead>
+    <tr>
+      <th>Name</th>
+      <th>Upvotes</th>
+      <th>Downvotes</th>
+    </tr>
+  </thead>
+  <tfoot>
+    <tr>
+      <td>Totals</td>
+      <td>21</td>
+      <td>23</td>
+    </tr>
+  </tfoot>
+  <tbody>
+    <tr>
+      <td>Alice</td>
+      <td>10</td>
+      <td>11</td>
+    </tr>
+    <tr>
+      <td>Bob</td>
+      <td>4</td>
+      <td>3</td>
+    </tr>
+    <tr>
+      <td>Charlie</td>
+      <td>7</td>
+      <td>9</td>
+    </tr>
+  </tbody>
+</table>
+
+Nullam id dolor id nibh ultricies vehicula ut id elit. Sed posuere consectetur est at lobortis. Nullam quis risus eget urna mollis ornare vel eu leo.
+
+-----
+
+Want to see something else added? <a href="https://github.com/poole/poole/issues/new">Open an issue.</a>
