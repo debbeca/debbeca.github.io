@@ -19,7 +19,7 @@ D’abord, le comportement de votre garbage collector vous en dit long sur votre
 ```bash
 -XX:+HeapDumpOnOutOfMemoryError -XX:HeapDumpPath=${DOMAIN_HOME}/logs/mps"
 ```
-
+Vous pouvez également utiliser [jconsole](https://docs.oracle.com/javase/7/docs/technotes/guides/management/jconsole.html) ou [jvisualvm](https://docs.oracle.com/javase/7/docs/technotes/tools/share/jvisualvm.html) pour faire un heap dump et [MAT](https://www.eclipse.org/mat/) pour l'analyser.
 Ensuite, vous aurez besoin de collecter des statistiques sur Hibernate et la base de données. Les requêtes les plus exécutées, les requêtes qui mettent le plus de temps à être exécutées.
 Pour ce faire, vous pouvez soit utiliser des sondes de type “Dynatrace” ou bien essayer d’activer les statistiques Hibernate comme suit :
 
@@ -73,6 +73,10 @@ Perhaps you are facing an N+1 select issue
 	                                       or FetchType.LAZY
 	                                       or ...
 ```
+Les N+1 select peuvent être détectés avec une base mémoire de test.
+QuickPerf affiche dans la console des recommandations Hibernate ou Spring Data JPA pour nous aider à faire disparaître le N+1 select.
+Une fois le N+1 select supprimé, QuickPerf va permettre d'assurer non régression automatisée sur l'absence du N+1 select.
+
 ### 3. Travailler votre indexation
  Indexer les colonnes et attributs utilisés dans vos recherches. Si vous avez un ```findByX```, assurez-vous d’avoir, dans la mesure du possible, un index sur le X. Il ne faut jamais sous-estimer l'impact d'un full scan table sur votre application. Surveillez de près les plans d'exécution de vos requêtes.
 ### 4. Attention aux effets de bords de Lombok
@@ -121,6 +125,7 @@ A la place, il vaut mieux recalculer la liste des produits préférés de la fa�
  ```
 Si votre liste contient 2 éléments, Hibernate va générer une clause IN avec 2 paramètres. Si votre liste contient 3 ou 4 éléments, la clause IN générée va en contenir 4, puis 8 pour 5 à 8 éléments. Si le nombre de produits préférés dépasse 8, nous passons à un palier de 16 et ainsi de suite.
 La dernière valeur est répétée autant de fois que possible jusqu'à atteindre un palier de nombre de paramètres égal à la puissance de 2 la plus proche. 
+L'activation du padding Hibernate devrait réduire dans le query plan cache d'Hibernate le nombre de HqlQueryPlan contentant des requêtes de type select in.
 ### 9. Séparer votre modèle de lecture de celui de l'écriture
 Vous n'êtes pas condamnés à utiliser les objets/entités de l'écriture dans la lecture. Il faut souvent redéfinir ses objets et récrire la façon avec laquelle on extrait des données de la base, afin de minimiser les entrées/sorties. Par exemple, supposons que vous avez un système de gestion de commandes client. Vous avez une interface dashboard sur laquelle vous avez un tableau résumant l'ensemble des commandes ouvertes avec la date de création et un statut de la commande. On peut imaginer un modèle LECTURE de l'entité commande qui ne restitue que les informations strictement nécessaires : nom de la commande, référence, date de création et statut. Le tout sans devoir passer par toutes les relations et informations relatives au client, produits, type de livraison etc...
 Ceci nous permettra d'avoir des projections en base de données moins importantes et peu gourmandes en mémoire et en temps de traitement.
