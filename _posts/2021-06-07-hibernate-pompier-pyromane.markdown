@@ -142,7 +142,6 @@ List<CommandSummary> getAllCommandSummary();
 ```
 
 
-
 ### 10. Pensez à la performance dès la conception de l'interface graphique 
 La performance d’une application commence dès la conception de son interface.
 Si vous ne réfléchissez pas à l'avance aux cardinalité et volumétrie de vos données, vous risquez d'être surpris plus tard, quand la page commencera à mettre des plombes pour se charger. 
