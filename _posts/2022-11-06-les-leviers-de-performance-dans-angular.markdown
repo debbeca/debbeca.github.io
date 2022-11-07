@@ -15,7 +15,7 @@ J'ai travaillé sur l'optimisation d'une application Angular. Nous avons mené p
 
 ### 1. Eviter les appels de fonction depuis le template :
 
-   Angular n'est pas capable de prédire si la valeur retournée par les méthodes inscrites dans les templates.
+   Angular n'est pas capable de prédire si la valeur retournée par les méthodes inscrites dans les templates a été modifiée.
 
    De ce fait, à chaque cycle de détection de changement, Angular exécutera toutes ces méthodes afin de calculer sa nouvelle vue. 
 
@@ -25,7 +25,7 @@ J'ai travaillé sur l'optimisation d'une application Angular. Nous avons mené p
     </div>
    ```
    
-   Donc, au lieu d'appeler directement la méthode renvoyant la valeur attendue. Il est plus intéressant d'appler un attribut du composant et s'assurer que ce dernier a été bien rempli au moment opportun ; soit lors d'un événnement utilisateur (onClick) ou dans une phase du cycle du vie du composant (onInit()) ou autre.
+   Donc, au lieu d'appeler directement la méthode renvoyant la valeur attendue. Il est plus intéressant d'utiliser un attribut du composant et s'assurer que ce dernier a été bien rempli au moment opportun ; soit lors d'un événnement utilisateur (onClick) ou dans une phase du cycle du vie du composant (onInit()) ou autre.
 
    ```html
    <div>
