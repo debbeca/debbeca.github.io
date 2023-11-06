@@ -7,7 +7,7 @@ Ce blog est écrit par Walid DEBBECH. Un Software Craftsman passionné.
 
 👀 Je suis intéressé par l'artisanat logiciel, la résolution de problèmes de performances sur les applications Web et la création d'applications Web SaaS
 
-🌱 Je contribue actuellement à un projet open source lié à la performance [@QuickPerf-live](https://github.com/quick-perf/quickperf-live)  et je suis sur le point de terminer mon [SaaS](https://www.skillometrics.com)
+🌱 Je contribue actuellement à un projet open source lié à la performance [@QuickPerf-live](https://github.com/quick-perf/quickperf-live)  et je travaille sur mon [SaaS](https://www.skillometrics.com)
 
 ✍️ J'ai aussi ce blog technique sur lequel je partage une partie de ce que j'ai appris
 
