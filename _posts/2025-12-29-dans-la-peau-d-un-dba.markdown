@@ -20,14 +20,16 @@ Ensuite, il s'est contenté de rafraichir le cache et la Shared Pool, pensant qu
 J'ai été convié à une réunion d'urgence pour discuter de la situation, et c'est là que j'ai commencé à creuser.
 J'ai tout de suite demandé à voir les statistiques de la base de données, les rapports d'exécution des requêtes, et les logs pour comprendre ce qui se passait.
 En fait, J'ai fait une analogie avec un problème rencontré sur l'augmentation du querycache plan  d'hibernate que j'ai évoqué dans un ancien post. Je pensais que j'ai été confronté au même problème, mais au niveau de la base de données et pas au niveau de l'ORM.
-En regardant les requêtes, aucune variation de nombre de paramétres n'est possible. Une seule version de la reqyêt
-## 
+En regardant les requêtes, aucune variation de nombre de paramétres n'est possible. Une seule version de la requête est générée. Donc, pas de problème de ce côté-là.
+Les Rapport AWR (Automatic Workload Repository) ont révélé une augmentation significative de la mémoire utilisée lors de l'exécution de la requête problématique. 
+
+## La cause profonde : une armée de "child cursors"
+ 
 Après quelques investigations, nous avons identifié un coupable potentiel.
 Une contention de cursor mutex X dans notre base de données Oracle.
 
 Pour ceux qui ne sont pas familiers, cursor: mutex X est un verrou exclusif utilisé par Oracle pour protéger les structures internes des curseurs partagés. En gros, cela signifie que plusieurs sessions essayaient d'accéder ou de modifier le même curseur en même temps, ce qui entraînait des blocages.
 
-La cause profonde : une armée de "child cursors"
 
 En creusant davantage, nous avons découvert que le problème était dû à une génération excessive de "child cursors". Oracle crée ces "child cursors" pour gérer différentes versions d'une même requête SQL dans le cache partagé (Shared Pool). Cela se produit lorsque des variations dans les paramètres ou les contextes d'exécution empêchent la réutilisation d'un curseur existant.
 
@@ -39,22 +41,21 @@ Après une analyse approfondie, nous avons identifié la source du problème : B
 
 Par exemple, nous avions des différences dans les types de données (VARCHAR2 vs NUMBER) et des valeurs NULL dans les variables de liaison, ce qui modifiait le plan d'exécution et forçait Oracle à créer un nouveau child cursor à chaque exécution.
 
-L'impact : une mémoire engloutie
-
 L'impact de cette situation était considérable. La requête problématique consommait à elle seule 3.6 Go de mémoire. Chaque child cursor grignotait de la mémoire dans la Shared Pool, ce qui entraînait une saturation de cette dernière.
-
-Les conséquences : des performances en berne
 
 La création fréquente de nouveaux child cursors provoquait des verrous exclusifs (Mutex) pour synchroniser l'accès à ces curseurs. La fréquence élevée d'exécution de la requête amplifiait le problème, ralentissant considérablement les performances globales.
 
-La solution : un travail d'équipe
+## La solution : des quicks wins pour restaurer les performances
 
 Pour résoudre ce problème, nous avons mis en œuvre plusieurs solutions :
 
-Uniformisation des Bind Variables : Nous avons vérifié que les types de données et les tailles des variables de liaison étaient cohérents, et nous avons évité les valeurs NULL autant que possible.
-Forcer le partage des curseurs : Nous avons utilisé le paramètre Oracle CURSOR_SHARING=FORCE pour encourager la réutilisation des curseurs.
-Optimisation de la requête : Nous avons réduit la complexité de la requête pour minimiser les variations dans les plans d'exécution.
-Conclusion
+-Uniformisation des Bind Variables : Nous avons vérifié que les types de données et les tailles des variables de liaison étaient cohérents, et nous avons évité les valeurs NULL autant que possible.
+
+-Forcer le partage des curseurs : Nous avons utilisé le paramètre Oracle CURSOR_SHARING=FORCE pour encourager la réutilisation des curseurs.
+
+-Optimisation de la requête : Nous avons réduit la complexité de la requête pour minimiser les variations dans les plans d'exécution.
+
+## Conclusion
 
 Cette expérience m'a rappelé l'importance d'une gestion rigoureuse des bind variables et d'une configuration appropriée de la base de données. En fin de compte, en uniformisant les bind variables, en forçant le partage des curseurs et en optimisant la requête, nous avons réussi à résoudre le problème de contention de curseur et à restaurer des performances optimales.
 
