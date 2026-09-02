@@ -25,6 +25,8 @@ En regardant les requêtes, aucune variation de nombre de paramétres n'est poss
 Les Rapport AWR (Automatic Workload Repository) ont révélé une augmentation significative de la mémoire utilisée lors de l'exécution de la requête problématique. 
 
 ## La cause profonde : une armée de "child cursors"
+
+Ma fausse analogie nous a tous orienté sur la bonne piste.
  
 Après quelques investigations, nous avons identifié un coupable potentiel.
 Une contention de cursor mutex X dans notre base de données Oracle.
@@ -59,7 +61,7 @@ Pour résoudre ce problème, nous avons mis en œuvre plusieurs solutions :
 
 ## Conclusion
 
-Cette expérience m'a rappelé l'importance d'une gestion rigoureuse des bind variables et d'une configuration appropriée de la base de données. En fin de compte, en uniformisant les bind variables, en forçant le partage des curseurs et en optimisant la requête, nous avons réussi à résoudre le problème de contention de curseur et à restaurer des performances optimales.
+Cette expérience m'a confirmé qu'il ne faut pas hésiter de faire des analogies même farfelues pour résoudre un problème. Elle m'a aussi rappelé l'importance d'une gestion rigoureuse des bind variables et d'une configuration appropriée de la base de données. En fin de compte, en uniformisant les bind variables, en forçant le partage des curseurs et en optimisant la requête, nous avons réussi à résoudre le problème de contention de curseur et à restaurer des performances optimales.
 
 J'espère que ce post vous sera utile si vous rencontrez des problèmes similaires.
 
