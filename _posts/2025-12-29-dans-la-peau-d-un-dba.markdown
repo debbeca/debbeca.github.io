@@ -59,6 +59,73 @@ Pour résoudre ce problème, nous avons mis en œuvre plusieurs solutions :
 
 -Optimisation de la requête : Nous avons réduit la complexité de la requête pour minimiser les variations dans les plans d'exécution.
 
+## Suis-je concerné ? 
+Tu te poses peut-être deja la question : suis-je concerné par tout ce qu'il me raconte ? 
+La réponse est facile à trouver :
+
+Pour voir ce que consomment tes queries :
+```sql
+/* Top SQL dans la shared pool avec consommation mémoire */
+SELECT
+    sql_id,
+    parsing_schema_name,
+    executions,
+    version_count,
+    ROUND(sharable_mem   / 1024 / 1024, 2) AS sharable_mb,
+    ROUND(persistent_mem / 1024 / 1024, 2) AS persistent_mb,
+    ROUND(runtime_mem    / 1024 / 1024, 2) AS runtime_mb,
+    SUBSTR(REPLACE(sql_text, CHR(10), ' '), 1, 120) AS sql_text
+FROM v$sqlarea
+ORDER BY sharable_mem DESC
+FETCH FIRST 50 ROWS ONLY;
+```
+
+Ensuite, pour voir les child cursors :
+```sql
+/* vue par child cursor */
+SELECT
+    sql_id,
+    child_number,
+    executions,
+    ROUND(sharable_mem / 1024 / 1024, 2) AS sharable_mb,
+    ROUND(persistent_mem / 1024 / 1024, 2) AS persistent_mb,
+    ROUND(runtime_mem / 1024 / 1024, 2) AS runtime_mb
+FROM v$sql
+ORDER BY sharable_mem DESC
+FETCH FIRST 100 ROWS ONLY;
+```
+ou si tu as deja trouvé la query coupable :
+
+```sql
+SELECT
+    sql_id,
+    COUNT(*) AS nb_child_cursor
+FROM v$sql
+WHERE sql_id = :sql_id
+GROUP BY sql_id;
+```
+Et pour voir les bind variables utilisées par la requête pour détecter les eventuels BIND_MISMATCH :
+
+```sql
+/* Historique des binds : type envoyé (capturé) + valeur */
+SELECT
+    sn.begin_interval_time,
+    b.sql_id,
+    b.position,
+    b.name AS bind_name,
+    b.datatype_string AS type_envoye_capture,
+    b.value_string AS valeur_capturee,
+    b.last_captured
+FROM dba_hist_sqlbind b
+JOIN dba_hist_snapshot sn
+  ON sn.dbid = b.dbid
+ AND sn.instance_number = b.instance_number
+ AND sn.snap_id = b.snap_id
+WHERE b.sql_id = :sql_id
+ORDER BY sn.begin_interval_time DESC, b.position;
+```
+
+
 ## Conclusion
 
 Cette expérience m'a confirmé qu'il ne faut pas hésiter de faire des analogies même farfelues pour résoudre un problème. Elle m'a aussi rappelé l'importance d'une gestion rigoureuse des bind variables et d'une configuration appropriée de la base de données. En fin de compte, en uniformisant les bind variables, en forçant le partage des curseurs et en optimisant la requête, nous avons réussi à résoudre le problème de contention de curseur et à restaurer des performances optimales.
