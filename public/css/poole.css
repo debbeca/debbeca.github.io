@@ -344,12 +344,21 @@ tbody tr:nth-child(odd) th {
   margin-top: 0;
 }
 
+/* Post header container */
+.post-header {
+  display: flex;
+  align-items: baseline;
+  gap: 1rem;
+}
+
 /* Meta data line below post title */
 .post-date {
-  display: block;
-  margin-top: -.5rem;
-  margin-bottom: 1rem;
+  display: inline;
+  margin-top: 0;
+  margin-bottom: 0;
   color: #9a9a9a;
+  white-space: nowrap;
+  flex-shrink: 0;
 }
 
 /* Related posts */
